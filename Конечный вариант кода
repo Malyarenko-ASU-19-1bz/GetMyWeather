@@ -1,0 +1,54 @@
+//Конечный вариант MainActivity.kt
+package com.example.getmyweather
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Request
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONObject
+
+const val apikey = "8ac4344a796b4f789c7163504241301"
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        val enter1 : EditText = findViewById(R.id.ent1)
+        val ou1 : TextView = findViewById(R.id.textView5)
+        val ou2 : TextView = findViewById(R.id.textView6)
+        val ou3 : TextView = findViewById(R.id.textView7)
+        val ou4 : TextView = findViewById(R.id.textView4)
+        val button: Button = findViewById(R.id.bGet)
+        button.setOnClickListener {
+            val city = enter1.text.toString()
+            val url = "https://api.weatherapi.com/v1/current.json?key=$apikey&q=$city&aqi=no"
+            val queue = Volley.newRequestQueue(this)
+            val stringRequest = StringRequest(Request.Method.GET,
+                url,
+                { response ->
+                    val obj = JSONObject(response)
+                    val jstr = obj.getJSONObject("current")
+                    val v1 = jstr.getString("temp_c") + " °C"
+                    val jsv = jstr.getJSONObject("condition")
+                    val v2 = jsv.getString("text")
+                    val v3 = jstr.getString("wind_kph")
+                    val vfl = v3.toFloat()
+                    val mps = (vfl * 1000 / 3600) - (vfl * 1000 / 3600) % 0.01
+                    val wind = "$mps mps"
+                    ou1.text = v1
+                    ou2.text = v2
+                    ou3.text = wind
+                    ou4.text = "      "
+                },
+                {
+                    val v4 = "Error: $it"
+                    ou4.text = v4
+                }
+            )
+            queue.add(stringRequest)
+        }
+    }
+}
